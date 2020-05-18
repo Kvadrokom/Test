@@ -3,22 +3,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
+#include "header_bsq.h"
 
 #define BUF_SIZE 10
-
-int     ft_strlen(char *c);
-
-void    make_str(char **str_in, char *str_out, int ret);
-
-int     nb_str(char *c);
-
-void    solve_map(char *c);
-
-char    **split_whsp(char *c);
-
-int     is_tab(char c);
-
-char    *make_str_arr(char *c, int len);
 
 int main(int argc, char **argv)
 {
@@ -53,10 +40,137 @@ int main(int argc, char **argv)
 
 void	solve_map(char *c)
 {
-	char **map;
+	char	**map;
+	int		**arr;
+	int		i;
+	int		j;
+	t_bsq	map_bsq;
 
+	i = 0;
+	j = 0;
+	arr = (int **)malloc(sizeof(int *) * (nb_str(c)));
 	map = split_whsp(c);
-	printf("%s\n", map[0] - 5);
+	while (i < nb_str(c))
+      {
+        arr[i] = (int*)malloc(sizeof(int) * ft_strlen(map[0]));
+        i++;
+      }
+      i = 0;
+	arr = arr_clc(map, arr);
+	print_map(arr, map);
+	printf("\n");
+	map_bsq.max = 0;
+	while (map[i])
+	{
+		while (map[i][j])
+		{
+			if (i != 0 && j != 0 && arr[i][j] > 0)
+			{
+				arr[i][j] = 1 + min(arr[i - 1][j], arr[i][j - 1], arr[i - 1][j - 1]);
+			}
+			if (arr[i][j] > map_bsq.max)
+			{
+				map_bsq.max = arr[i][j];
+				map_bsq.col = j;
+				map_bsq.row = i;
+			}
+			j++;
+		}
+		i++;
+		j = 0;
+	}
+	print_map(arr, map);
+	print_map_bsq(map, map_bsq);
+}
+
+void	print_map_bsq(char **map, t_bsq map_bsq)
+{
+	int		i;
+	int		j;
+
+	i = 0;
+	j = 0;
+	while (map[i])
+	{
+		while (map[i][j])
+		{
+			if (i >= map_bsq.row - map_bsq.max && j > map_bsq.col - map_bsq.max
+				&& i <= map_bsq.row && j <= map_bsq.col)
+			{
+				printf("x");
+			}
+			else
+				printf("%c", map[i][j]);
+			j++;
+		}
+		i++;
+		printf("\n");
+		j = 0;
+	}
+}
+
+int		min(int a, int b, int c)
+{
+	int min;
+
+	min = a;
+	if (b < a)
+	{
+		min = b;
+	}
+	if (c < a)
+	{
+		if (c < b)
+			min = c;
+	}
+	return (min);
+}
+
+void	print_map(int	**c, char	**map)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while (map[i])
+	{
+		while (map[i][j])
+		{
+			printf("%d ", c[i][j]);
+			j++;
+		}
+		printf("\n");
+		i++;
+		j = 0;
+	}
+}
+
+int		**arr_clc(char **map, int **tmp)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while (map[i])
+	{
+		while (map[i][j])
+		{
+			if (map[i][j] == '.')
+			{
+				tmp[i][j] = 1;
+			}
+			else
+			{
+				tmp[i][j] = 0;
+			}
+			j++;
+		}
+		i++;
+		j = 0;
+	}
+	return (tmp);
 }
 
 char	**split_whsp(char *c)
@@ -119,6 +233,8 @@ char	*make_str_arr(char *c, int len)
 		tmp++;
 	}
 	*tmp = '\0';
+	tmp = tmp -len;
+	printf("%s \n", tmp);
 	return (tmp);
 }
 
